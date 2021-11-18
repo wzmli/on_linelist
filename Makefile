@@ -18,19 +18,37 @@ username=username_required
 
 ######################################################################
 
+Ignore += *.stamp
 IPHIS%.stamp:
 	rsync $(username)@ms.mcmaster.ca:~/../g_earn_canmod/sfts.health.gov.on.ca-nightly-download/archive/2021-11-16/IPHIS_REPORT.CSV.gz .
 	touch $@
 
+Ignore += IPHIS_REPORT.CSV
 IPHIS_REPORT.CSV: IPHIS00.stamp
 	gunzip IPHIS_REPORT.CSV.gz
+	touch $@
 
 COVAX%.stamp:
 	rsync $(username)@ms.mcmaster.ca:~/../g_earn_canmod/sfts.health.gov.on.ca-nightly-download/archive/2021-11-16/COVAX_File.zip .
 	touch $@
 
-COVAX_File.CSV: COVAX00.stamp
+Ignore += COVAX_File.csv
+COVAX_File.csv: COVAX00.stamp
 	jar xvf COVAX_File.zip
+	touch $@
+
+Ignore += COVAX.random.csv
+COVAX.random.csv: COVAX_File.csv Makefile
+	head -1 $< > $@
+	shuf -n 10000 $< >> $@
+
+Ignore += COVAX.head.csv
+COVAX.head.csv: COVAX_File.csv
+	head -1000 $< > $@
+
+Ignore += COVAX.wc
+COVAX.wc: COVAX_File.csv
+	 wc $< > $@
 
 ######################################################################
 
