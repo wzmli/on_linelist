@@ -30,6 +30,7 @@ COVAX%.stamp:
 	touch $@
 
 COVAX_File.CSV: COVAX00.stamp
+	jar xvf COVAX_File.zip
 
 ######################################################################
 
