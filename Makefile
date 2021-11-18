@@ -32,7 +32,7 @@ COVAX%.stamp:
 	rsync $(username)@ms.mcmaster.ca:~/../g_earn_canmod/sfts.health.gov.on.ca-nightly-download/archive/2021-11-16/COVAX_File.zip .
 	touch $@
 
-Ignore += COVAX_File.csv
+Ignore += COVAX_File.csv COVAX_File.zip
 COVAX_File.csv: COVAX00.stamp
 	jar xvf COVAX_File.zip
 	touch $@
