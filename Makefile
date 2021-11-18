@@ -18,22 +18,44 @@ username=username_required
 
 ######################################################################
 
+## Changing this will put a lot of things out of date! Be careful
+cdate = 2021-11-16
+
+######################################################################
+
 Ignore += *.stamp
-IPHIS%.stamp:
-	rsync $(username)@ms.mcmaster.ca:~/../g_earn_canmod/sfts.health.gov.on.ca-nightly-download/archive/2021-11-16/IPHIS_REPORT.CSV.gz .
+
+%.stamp:
+	$(call hide, $(stampfile))
+	$(MAKE) $(stampfile)
 	touch $@
+
+######################################################################
+
+## This is still clunkier than we need. If every day has a different name, we don't need to stamp (although the current stamp code is cool)
+
+IPHIS_REPORT.CSV.gz:
+	rsync $(username)@ms.mcmaster.ca:~/../g_earn_canmod/sfts.health.gov.on.ca-nightly-download/archive/$(cdate)/$@ .
+	$(lscheck)
+
+IPHIS.$(cdate).stamp: stampfile=IPHIS_REPORT.CSV.gz
 
 Ignore += IPHIS_REPORT.CSV
-IPHIS_REPORT.CSV: IPHIS00.stamp
-	gunzip IPHIS_REPORT.CSV.gz
+IPHIS_REPORT.CSV: IPHIS_REPORT.CSV.gz IPHIS.$(cdate).stamp
+	gunzip -f -k $<
 	touch $@
 
-COVAX%.stamp:
-	rsync $(username)@ms.mcmaster.ca:~/../g_earn_canmod/sfts.health.gov.on.ca-nightly-download/archive/2021-11-16/COVAX_File.zip .
-	touch $@
+######################################################################
 
-Ignore += COVAX_File.csv COVAX_File.zip
-COVAX_File.csv: COVAX00.stamp
+Ignore += COVAX_File.zip
+COVAX_File.zip:
+	rsync $(username)@ms.mcmaster.ca:~/../g_earn_canmod/sfts.health.gov.on.ca-nightly-download/archive/$(cdate)/$@ .
+	$(lscheck)
+
+COVAX.$(cdate).stamp: stampfile=COVAX_File.zip
+
+Ignore += COVAX_File.csv
+COVAX_File.csv: COVAX.$(cdate).stamp
 	jar xvf COVAX_File.zip
 	touch $@
 
